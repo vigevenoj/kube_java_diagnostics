@@ -7,7 +7,7 @@ from kubernetes import client, config
 from kubernetes.stream import stream
 
 
-class K8JiveSnapper():
+class KubeJavaDiagnostics():
     """
     Collect diagnostic information from a containerized Java application
     running in a kubernetes cluster. Tool is a wrapper allowing us to take
@@ -98,11 +98,13 @@ def save_thread_dump(namespace, pod_name, thread_dump):
     Helper to save thread dump to file
     """
     # TODO: save as file
-    timestamp = '{0:%Y%m%d-%H%M%S}'.format(datetime.datetime.now())
+    timestamp = '{0:%Y%m%d-%H%M}'.format(datetime.datetime.now())
     filename = "{0}_{1}_{2}_threaddump.out".format(namespace,
                                                    pod_name,
                                                    timestamp)
-    print("Saved thread dump as {0}".format(filename))
+    with open(filename, 'w') as output:
+        output.write(thread_dump)
+        print("Saved thread dump as {0}".format(filename))
 
 
 def save_histogram(namespace, pod_name, histogram):
@@ -110,11 +112,13 @@ def save_histogram(namespace, pod_name, histogram):
     Helper to save class histogram to a file
     """
     # TODO: save as file
-    timestamp = '{0:%Y%m%d-%H%M%S}'.format(datetime.datetime.now())
+    timestamp = '{0:%Y%m%d-%H%M}'.format(datetime.datetime.now())
     filename = "{0}_{1}_{2}_histogram.txt".format(namespace,
                                                   pod_name,
                                                   timestamp)
-    print("Saved histogram as {0}".format(filename))
+    with open(filename, 'w') as output:
+        output.write(histogram)
+        print("Saved histogram as {0}".format(filename))
 
 
 if __name__ == '__main__':
@@ -142,7 +146,7 @@ if __name__ == '__main__':
                         default="Bootstrap")
     args = parser.parse_args()
 
-    snapper = K8JiveSnapper(args)
+    snapper = KubeJavaDiagnostics(args)
     if args.pod:
         # Get diagnostics from only a single pod
         pid = snapper.get_jive_pid(args.pod)
