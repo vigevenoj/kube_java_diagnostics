@@ -150,8 +150,12 @@ if __name__ == '__main__':
     if args.pod:
         # Get diagnostics from only a single pod
         pid = snapper.get_jive_pid(args.pod)
+
         threads = snapper.dump_threads(args.pod, pid)
+        histogram = snapper.get_histogram(args.pod, pid)
+
         save_thread_dump(args.namespace, args.pod, threads)
+        save_histogram(args.namespace, args.pod, histogram)
     else:
         # Get diagnostics from all pods in the namespace
         v1 = client.CoreV1Api()
@@ -159,5 +163,9 @@ if __name__ == '__main__':
                                           label_selector=args.label)
         for pod in pod_list.items:
             pid = snapper.get_jive_pid(pod.metadata.name)
+
             threads = snapper.dump_threads(pod.metadata.name, pid)
+            histogram = snapper.get_histogram(pod.metadata.name, pid)
+
             save_thread_dump(args.namespace, pod.metadata.name, threads)
+            save_histogram(args.namespace, pod.metadata.name, histogram)
