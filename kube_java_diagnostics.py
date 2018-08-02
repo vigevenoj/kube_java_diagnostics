@@ -30,9 +30,9 @@ class KubeJavaDiagnostics():
         handler = logging.StreamHandler(stream=sys.stdout)
         handler.setFormatter(formatter)
 
-    def get_jive_pid(self, pod_name):
+    def get_java_pid(self, pod_name):
         """
-        Return the process ID of the jive application process inside the
+        Return the process ID of the java application process inside the
         container.
         Relies on the main class of the java process including the string
         defined in the main_class variable above
@@ -53,7 +53,7 @@ class KubeJavaDiagnostics():
                 pid = line.split(' ')[0]
                 if pid.isnumeric():
                     return pid
-        self._logger.error("No PID for jive bootstrap process found")
+        self._logger.error("No PID for Java process found")
         pass
 
     def dump_threads(self, pod_name, pid):
@@ -149,7 +149,7 @@ if __name__ == '__main__':
     snapper = KubeJavaDiagnostics(args)
     if args.pod:
         # Get diagnostics from only a single pod
-        pid = snapper.get_jive_pid(args.pod)
+        pid = snapper.get_java_pid(args.pod)
 
         threads = snapper.dump_threads(args.pod, pid)
         histogram = snapper.get_histogram(args.pod, pid)
@@ -162,7 +162,7 @@ if __name__ == '__main__':
         pod_list = v1.list_namespaced_pod(args.namespace,
                                           label_selector=args.label)
         for pod in pod_list.items:
-            pid = snapper.get_jive_pid(pod.metadata.name)
+            pid = snapper.get_java_pid(pod.metadata.name)
 
             threads = snapper.dump_threads(pod.metadata.name, pid)
             histogram = snapper.get_histogram(pod.metadata.name, pid)
